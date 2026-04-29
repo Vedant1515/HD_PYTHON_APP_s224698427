@@ -1,0 +1,33 @@
+steps:
+  # Step 1: Install dependencies
+  - name: 'python:3.11'
+    entrypoint: pip
+    args: ['install', '-r', 'requirements.txt', '--user']
+
+  # Step 2: Run tests (will FAIL with intentional failing tests)
+  - name: 'python:3.11'
+    entrypoint: python
+    args: ['-m', 'pytest', 'test_calculator.py', '-v']
+
+  # Step 3: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/sit707-python-app:$COMMIT_SHA', '.']
+
+  # Step 4: Push image to registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/sit707-python-app:$COMMIT_SHA']
+
+  # Step 5: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'sit707-python-app'
+      - '--image=gcr.io/$PROJECT_ID/sit707-python-app:$COMMIT_SHA'
+      - '--region=australia-southeast1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/sit707-python-app:$COMMIT_SHA'
