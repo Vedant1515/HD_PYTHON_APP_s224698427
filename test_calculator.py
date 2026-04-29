@@ -19,9 +19,3 @@ def test_divide_by_zero():
 
 def test_palindrome_true():
     assert is_palindrome("racecar") == True
-
-def test_add_wrong():
-    assert add(2, 3) == 99
-
-def test_palindrome_wrong():
-    assert is_palindrome("hello") == True
